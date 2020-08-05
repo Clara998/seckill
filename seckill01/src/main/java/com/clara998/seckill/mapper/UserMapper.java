@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -17,9 +18,8 @@ import org.springframework.stereotype.Repository;
 @Mapper
 public interface UserMapper {
 
-    @Select("select * from user where id = #{id}")
-    User getById(@Param("id") int id);
+    @Select("select * from sk_user where id = #{id}")
+    User getById(@Param("id") long id);
 
-    @Insert("insert into user(id, name) values (#{id}, #{name})")
-    int insert(User user);
+
 }

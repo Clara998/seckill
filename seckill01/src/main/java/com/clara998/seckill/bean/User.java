@@ -1,27 +1,24 @@
 package com.clara998.seckill.bean;
 
+import lombok.Getter;
+import lombok.Setter;
+
+import java.io.Serializable;
+import java.util.Date;
+
 /**
  * @author clara
  * @date 2020/7/27
  */
-public class User {
-    private int id;
-    private String name;
-
-    //或者@Data 相当于同时@Setter @Getter
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+@Getter
+@Setter
+public class User implements Serializable {
+    private Long id;
+    private String nickname;
+    private String password;
+    private String salt;
+    private String head;
+    private Date registerDate;
+    private Date lastLoginDate;
+    private Integer loginCount;
 }
