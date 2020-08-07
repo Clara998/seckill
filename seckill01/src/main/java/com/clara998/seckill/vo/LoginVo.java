@@ -1,7 +1,10 @@
 package com.clara998.seckill.vo;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * @author clara
@@ -10,7 +13,9 @@ import lombok.Setter;
 @Setter
 @Getter
 public class LoginVo {
+    @NotNull
     private String mobile;
+    @NotNull
     private String password;
 
     @Override

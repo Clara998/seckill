@@ -1,5 +1,6 @@
 package com.clara998.seckill.service;
 
+import com.clara998.seckill.bean.SeckillGoods;
 import com.clara998.seckill.mapper.GoodsMapper;
 import com.clara998.seckill.vo.GoodsVo;
 import org.apache.ibatis.annotations.Param;
@@ -25,5 +26,14 @@ public class GoodsService {
 
     public GoodsVo getGoodsVoByGoodsId(long goodsId) {
         return goodsMapper.getGoodsVoByGoodsId(goodsId);
+    }
+
+    /**
+     * 库存每次减少1
+     */
+    public void reduceStock(GoodsVo goods) {
+        SeckillGoods sg = new SeckillGoods();
+        sg.setGoodsId(goods.getId());
+        goodsMapper.reduceStock(sg);
     }
 }

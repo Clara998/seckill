@@ -10,6 +10,9 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+/**
+ * 自定义全局异常拦截器
+ */
 public class GlobalException extends RuntimeException {
     private CodeMsg codeMsg;
 
