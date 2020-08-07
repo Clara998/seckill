@@ -50,6 +50,12 @@ public class CodeMsg {
     }
 
 
+    /**
+     * 返回带参数的错误码
+     * （看不懂）
+     * @param args
+     * @return
+     */
     public CodeMsg fillArgs(Object... args) { //可以调用多个Obects
         int code = this.code;
         String message = String.format(this.msg, args);
