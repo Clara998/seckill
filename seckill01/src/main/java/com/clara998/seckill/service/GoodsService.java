@@ -2,6 +2,7 @@ package com.clara998.seckill.service;
 
 import com.clara998.seckill.mapper.GoodsMapper;
 import com.clara998.seckill.vo.GoodsVo;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,5 +21,9 @@ public class GoodsService {
 
     public List<GoodsVo> goodsVoList() {
         return goodsMapper.goodsVoList();
+    }
+
+    public GoodsVo getGoodsVoByGoodsId(long goodsId) {
+        return goodsMapper.getGoodsVoByGoodsId(goodsId);
     }
 }
