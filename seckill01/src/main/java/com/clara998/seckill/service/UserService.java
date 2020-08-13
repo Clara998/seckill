@@ -1,4 +1,5 @@
 package com.clara998.seckill.service;
+import com.alibaba.druid.util.StringUtils;
 import com.clara998.seckill.bean.User;
 import com.clara998.seckill.exception.GlobalException;
 import com.clara998.seckill.mapper.UserMapper;
@@ -34,6 +35,9 @@ public class UserService {
         return userMapper.getById(id);
     }
 
+    // 在类中定义一个COOKIE_NAME_TOKEN常量
+    public static final String COOKIE_NAME_TOKEN = "token";
+
 
     public String login(HttpServletResponse response, LoginVo loginVo) {
         if (loginVo == null) {
@@ -56,10 +60,23 @@ public class UserService {
 
     private void addCookie(HttpServletResponse response, String token, User user) {
         serializableRedisTemplate.opsForValue().set(token, user);
-        Cookie cookie = new Cookie("token", token);
+        Cookie cookie = new Cookie("COOKIE_NAME_TOKEN", token);
         // 以s为单位
         cookie.setMaxAge(3600*24*2);
         cookie.setPath("/");
         response.addCookie(cookie);
+    }
+
+    public User getByToken(HttpServletResponse response, String token) {
+        //判断字符串是否为空
+        if (StringUtils.isEmpty(token)){
+            return null;
+        }
+        User user = (User) serializableRedisTemplate.opsForValue().get(token);
+        //延长有效期，有效期等于最后一次操作+有效期
+        if (user != null){
+            addCookie(response, token, user);
+        }
+        return user;
     }
 }

@@ -21,10 +21,12 @@ public class GoodsService {
     GoodsMapper goodsMapper;
 
     public List<GoodsVo> goodsVoList() {
+
         return goodsMapper.goodsVoList();
     }
 
     public GoodsVo getGoodsVoByGoodsId(long goodsId) {
+
         return goodsMapper.getGoodsVoByGoodsId(goodsId);
     }
 
