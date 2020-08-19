@@ -24,6 +24,7 @@
     <div class="panel-heading">秒杀商品详情</div>
     <div class="panel-body">
         <span th:if="${user eq null}"> 您还没有登录，请登陆后再操作<br/></span>
+        <span th:if="${user ne null}"> <p th:text="'hello:'+${user.nickname}" ></p><br/></span>
     </div>
     <table class="table" id="goodslist">
         <tr>

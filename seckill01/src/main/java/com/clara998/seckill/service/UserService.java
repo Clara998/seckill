@@ -27,8 +27,6 @@ public class UserService {
     UserMapper userMapper;
 
     @Autowired
-    private RedisTemplate<String, String> strRedisTemplate;
-    @Autowired
     private RedisTemplate<String, Serializable> serializableRedisTemplate;
 
     public User getById(long id) {
@@ -60,7 +58,7 @@ public class UserService {
 
     private void addCookie(HttpServletResponse response, String token, User user) {
         serializableRedisTemplate.opsForValue().set(token, user);
-        Cookie cookie = new Cookie("COOKIE_NAME_TOKEN", token);
+        Cookie cookie = new Cookie(COOKIE_NAME_TOKEN, token);
         // 以s为单位
         cookie.setMaxAge(3600*24*2);
         cookie.setPath("/");

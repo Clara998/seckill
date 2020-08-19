@@ -26,6 +26,7 @@ public class Result<T> { //泛型类
 
     private Result(T data) {
         this.data = data;
+        this.code = 0;
     }
 
     private Result(int code, String msg) {

@@ -2,7 +2,10 @@ package com.clara998.seckill.config;
 
 import com.alibaba.druid.util.StringUtils;
 import com.clara998.seckill.bean.User;
+import com.clara998.seckill.controller.LoginController;
 import com.clara998.seckill.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,8 @@ import javax.servlet.http.HttpServletResponse;
 @Service
 public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 
+    private static Logger log = LoggerFactory.getLogger(UserArgumentResolver.class);
+
     @Autowired
     UserService userService;
 
@@ -35,26 +40,48 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
         return clazz == User.class;
     }
 
+    /**
+     * resolveArgument 将请求中的参数值解析为某种对象(具体的操作获取解析对象)
+     * @param methodParameter
+     * @param modelAndViewContainer
+     * @param nativeWebRequest
+     * @param webDataBinderFactory
+     * @return
+     * @throws Exception
+     */
     @Override
     public Object resolveArgument(MethodParameter methodParameter, ModelAndViewContainer modelAndViewContainer, NativeWebRequest nativeWebRequest, WebDataBinderFactory webDataBinderFactory) throws Exception {
         HttpServletRequest request = nativeWebRequest.getNativeRequest(HttpServletRequest.class);
         HttpServletResponse response = nativeWebRequest.getNativeResponse(HttpServletResponse.class);
         //request中找token->user
+        assert request != null;
         String paramToken = request.getParameter(UserService.COOKIE_NAME_TOKEN);
-        String cookieToken = getCookieValue(request, UserService.COOKIE_NAME_TOKEN);
+
+        String cookieToken = getCookieValue(request);
+        log.info("paramToken = " + paramToken);
+        log.info("cookieToken = " + cookieToken);
         if (StringUtils.isEmpty(cookieToken) && StringUtils.isEmpty(paramToken)) {
             return null;
         }
         String token = StringUtils.isEmpty(paramToken) ? cookieToken : paramToken;
+
+        User user = userService.getByToken(response, token);
+        log.info(user.toString());
         //在redis中token->User并且更新有效期
         return userService.getByToken(response, token);
     }
 
     //Cookie中有很多字段例如Userid , token, nickname等等
-    private String getCookieValue(HttpServletRequest request, String cookieName) {
+    private String getCookieValue(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(cookieName)) {
+        if (cookies == null) {
+            return null;
+        }
+        for(Cookie cookie:cookies){
+            log.info("cookie.getName() = " + cookie.getName());
+            log.info("UserService.COOKIE_NAME_TOKEN = " + UserService.COOKIE_NAME_TOKEN);
+            if(cookie.getName().equals(UserService.COOKIE_NAME_TOKEN)){
+                log.info("cookie.getValue() = " + cookie.getValue());
                 return cookie.getValue();
             }
         }

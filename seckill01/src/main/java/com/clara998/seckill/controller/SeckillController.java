@@ -33,9 +33,10 @@ public class SeckillController {
     SeckillService seckillService;
 
     @RequestMapping("do_seckill")
-    //疑惑这个goodId哪里来的
+    //疑惑这个goodId哪里来的: html页面input进来
     public String list(Model model, User user, @RequestParam("goodsId")long goodsId) {
         model.addAttribute("user", user);
+        //返回login.html
         if (user == null) {
             return "login";
         }
