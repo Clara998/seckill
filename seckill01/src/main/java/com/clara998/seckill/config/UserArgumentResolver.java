@@ -58,15 +58,15 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
         String paramToken = request.getParameter(UserService.COOKIE_NAME_TOKEN);
 
         String cookieToken = getCookieValue(request);
-        log.info("paramToken = " + paramToken);
-        log.info("cookieToken = " + cookieToken);
+        //log.info("paramToken = " + paramToken);
+        //log.info("cookieToken = " + cookieToken);
         if (StringUtils.isEmpty(cookieToken) && StringUtils.isEmpty(paramToken)) {
             return null;
         }
         String token = StringUtils.isEmpty(paramToken) ? cookieToken : paramToken;
 
         User user = userService.getByToken(response, token);
-        log.info(user.toString());
+        //log.info(user.toString());
         //在redis中token->User并且更新有效期
         return userService.getByToken(response, token);
     }
@@ -78,10 +78,10 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
             return null;
         }
         for(Cookie cookie:cookies){
-            log.info("cookie.getName() = " + cookie.getName());
-            log.info("UserService.COOKIE_NAME_TOKEN = " + UserService.COOKIE_NAME_TOKEN);
+            //log.info("cookie.getName() = " + cookie.getName());
+            //log.info("UserService.COOKIE_NAME_TOKEN = " + UserService.COOKIE_NAME_TOKEN);
             if(cookie.getName().equals(UserService.COOKIE_NAME_TOKEN)){
-                log.info("cookie.getValue() = " + cookie.getValue());
+                //log.info("cookie.getValue() = " + cookie.getValue());
                 return cookie.getValue();
             }
         }

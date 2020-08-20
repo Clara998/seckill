@@ -1,16 +1,26 @@
 package com.clara998.seckill.controller;
 
+import com.alibaba.druid.util.StringUtils;
 import com.clara998.seckill.bean.User;
 import com.clara998.seckill.service.GoodsService;
 import com.clara998.seckill.service.UserService;
 import com.clara998.seckill.vo.GoodsVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.thymeleaf.context.IWebContext;
+import org.thymeleaf.context.WebContext;
+import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author clara
@@ -23,30 +33,63 @@ public class GoodsController {
     UserService userService;
     @Autowired
     GoodsService goodsService;
+    @Autowired
+    ApplicationContext applicationContext;
+    @Autowired
+    ThymeleafViewResolver thymeleafViewResolver;
+    @Autowired
+    private RedisTemplate<String, String> stringRedisTemplate;
 
     /**
      * 商品列表展示
+     * QPS:496
+     * 1000*10
     * */
-    @RequestMapping("/to_list")
-    public String toList(Model model, User user) {
+    @RequestMapping(value = "/to_list", produces = "text/html")
+    @ResponseBody
+    public String toList(HttpServletRequest request, HttpServletResponse response, Model model, User user) {
+
+        //取缓存
+        String html = stringRedisTemplate.opsForValue().get("getGoodsList");
+        if (!StringUtils.isEmpty(html)) {
+            return html;
+        }
+
         //往前台传数据
         model.addAttribute("user", user);
         List<GoodsVo> goodsList = goodsService.goodsVoList();
         model.addAttribute("goodsList", goodsList);
-        return "goods_list";
+
+        //手动渲染
+        IWebContext ctx = new WebContext(request, response,
+                request.getServletContext(), request.getLocale(), model.asMap());
+        html = thymeleafViewResolver.getTemplateEngine().process("goods_list", ctx);
+
+        if (!StringUtils.isEmpty(html)) {
+            stringRedisTemplate.opsForValue().set("getGoodsList", html, 60, TimeUnit.SECONDS);
+        }
+
+        return html;
     }
 
     /**
      * 商品详情页
      * */
-    @RequestMapping("/to_detail/{goodsId}")
+    @RequestMapping(value = "/to_detail/{goodsId}", produces =  "text/html")
+    @ResponseBody
     //@PathVariable("goodsId"))是url中的占位符号：
     // https://blog.csdn.net/yalishadaa/article/details/70555561
-    public String detail(Model model, User user, @PathVariable("goodsId") long goodId) {
+    public String detail(HttpServletRequest request, HttpServletResponse response, Model model, User user, @PathVariable("goodsId") long goodsId) {
         model.addAttribute("user", user);
 
+        //取缓存
+        String html = stringRedisTemplate.opsForValue().get("getGoodsDetail" + goodsId);
+        if(!StringUtils.isEmpty(html)) {
+            return html;
+        }
+
         //根据goodsId 查goods
-        GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodId);
+        GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
         model.addAttribute("goods", goods);
 
         //getTime()返回毫秒
@@ -72,7 +115,16 @@ public class GoodsController {
         }
         model.addAttribute("seckillStatus", seckillStatus);
         model.addAttribute("remainSeconds", remainSeconds);
-        return "goods_detail";
+
+        //手动渲染
+        IWebContext ctx = new WebContext(request,response,
+                request.getServletContext(),request.getLocale(), model.asMap());
+        html = thymeleafViewResolver.getTemplateEngine().process("goods_detail", ctx);
+        if(!StringUtils.isEmpty(html)) {
+            //设置过期时间
+            stringRedisTemplate.opsForValue().set("getGoodsDetail" + goodsId, html, 60, TimeUnit.SECONDS);
+        }
+        return html;
 
 
     }

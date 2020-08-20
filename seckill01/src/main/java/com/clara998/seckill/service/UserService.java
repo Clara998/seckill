@@ -30,7 +30,40 @@ public class UserService {
     private RedisTemplate<String, Serializable> serializableRedisTemplate;
 
     public User getById(long id) {
-        return userMapper.getById(id);
+        //取对象缓存
+        User user = (User) serializableRedisTemplate.opsForValue().get("getById" + id);
+        if (user != null) {
+            return user;
+        }
+        //如果不在缓存中，取数据库
+        user = userMapper.getById(id);
+        //再更新缓存
+        if (user != null) {
+            serializableRedisTemplate.opsForValue().set("getById" + id, user);
+        }
+        return user;
+    }
+
+    /**
+     * 典型缓存同步场景：更新密码
+     */
+    public boolean updatePassword(String token, long id, String formPass) {
+        //取user
+        User user = getById(id);
+        if(user == null) {
+            throw new GlobalException(CodeMsg.MOBILE_NOT_EXIST);
+        }
+        //更新数据库
+        User toBeUpdate = new User();
+        toBeUpdate.setId(id);
+        toBeUpdate.setPassword(formPass);
+        userMapper.update(toBeUpdate);
+        //更新缓存：删除缓存,并且更新token的user
+        serializableRedisTemplate.delete("getById" + id);
+        serializableRedisTemplate.delete("token" + token);
+        //更新Bean
+        user.setPassword(toBeUpdate.getPassword());
+        return true;
     }
 
     // 在类中定义一个COOKIE_NAME_TOKEN常量
@@ -57,7 +90,7 @@ public class UserService {
     }
 
     private void addCookie(HttpServletResponse response, String token, User user) {
-        serializableRedisTemplate.opsForValue().set(token, user);
+        serializableRedisTemplate.opsForValue().set("token" + token, user);
         Cookie cookie = new Cookie(COOKIE_NAME_TOKEN, token);
         // 以s为单位
         cookie.setMaxAge(3600*24*2);
@@ -70,7 +103,7 @@ public class UserService {
         if (StringUtils.isEmpty(token)){
             return null;
         }
-        User user = (User) serializableRedisTemplate.opsForValue().get(token);
+        User user = (User) serializableRedisTemplate.opsForValue().get("token" + token);
         //延长有效期，有效期等于最后一次操作+有效期
         if (user != null){
             addCookie(response, token, user);
