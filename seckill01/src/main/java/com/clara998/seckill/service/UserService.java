@@ -89,7 +89,11 @@ public class UserService {
         return token;
     }
 
-    private void addCookie(HttpServletResponse response, String token, User user) {
+    private void
+
+
+
+    addCookie(HttpServletResponse response, String token, User user) {
         serializableRedisTemplate.opsForValue().set("token" + token, user);
         Cookie cookie = new Cookie(COOKIE_NAME_TOKEN, token);
         // 以s为单位
