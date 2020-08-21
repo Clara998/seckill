@@ -25,6 +25,7 @@ public interface GoodsMapper {
     public GoodsVo getGoodsVoByGoodsId(@Param("goodsId")long goodsId);
 
     //疑惑它怎么知道goodsId的？
-    @Update("update sk_goods_seckill set stock_count = stock_count - 1 where goods_id = #{goodsId}")
+    //goods_stock > 0 防止超卖
+    @Update("update sk_goods_seckill set stock_count = stock_count - 1 where goods_id = #{goodsId} and goods_stock > 0")
     public int reduceStock(SeckillGoods seckillGoods);
 }
