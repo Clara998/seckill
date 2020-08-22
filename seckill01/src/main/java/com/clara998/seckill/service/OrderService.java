@@ -57,14 +57,14 @@ public class OrderService {
         orderInfo.setStatus(0);
         orderInfo.setUserId(user.getId());
         //返回的主键id
-        long orderId = orderMapper.insert(orderInfo);
+        orderMapper.insert(orderInfo);
 
         /**
          * 在数据库中设置联合唯一索引，防止一个用户多次秒杀同一个商品
          */
         SeckillOrder seckillOrder = new SeckillOrder();
         seckillOrder.setGoodsId(goods.getId());
-        seckillOrder.setOrderId(orderId);
+        seckillOrder.setOrderId(orderInfo.getId());
         seckillOrder.setUserId(user.getId());
         orderMapper.insertSeckillOrder(seckillOrder);
         serializableRedisTemplate.opsForValue().set("seckill" + user.getId() + "_" + goods.getId(), seckillOrder);
