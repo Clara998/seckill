@@ -19,6 +19,9 @@ public class GoodsService {
     @Autowired
     GoodsMapper goodsMapper;
 
+    //乐观锁冲突最大重试次数
+    private static final int DEFAULT_MAX_RETRIES = 5;
+
     public List<GoodsVo> goodsVoList() {
 
         return goodsMapper.goodsVoList();
@@ -34,10 +37,22 @@ public class GoodsService {
      * @return
      */
     public boolean reduceStock(GoodsVo goods) {
+        int numAttempts = 0;
         SeckillGoods sg = new SeckillGoods();
+        int ret = 0;
         sg.setGoodsId(goods.getId());
-        //这里假如满足库存>0才update成功，否则update失败
-        int ret = goodsMapper.reduceStock(sg);
+        do {
+            numAttempts++;
+            try {
+                ret = goodsMapper.reduceStock(sg);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (ret != 0) {
+                break;
+            }
+        } while (numAttempts < DEFAULT_MAX_RETRIES);
+
         return ret > 0;
     }
 }
