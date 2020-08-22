@@ -67,7 +67,7 @@ public class OrderService {
         seckillOrder.setOrderId(orderId);
         seckillOrder.setUserId(user.getId());
         orderMapper.insertSeckillOrder(seckillOrder);
-        serializableRedisTemplate.opsForValue().set("seckill" + user.getId() + "_" + goods.getId(), (Serializable)seckillOrder);
+        serializableRedisTemplate.opsForValue().set("seckill" + user.getId() + "_" + goods.getId(), seckillOrder);
         return orderInfo;
     }
 

@@ -3,13 +3,15 @@ package com.clara998.seckill.bean;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 /**
  * @author clara
  * @date 2020/8/1
  */
 @Setter
 @Getter
-public class Goods {
+public class Goods implements Serializable {
     private Long id;
     private String goodsName;
     private String goodsTitle;

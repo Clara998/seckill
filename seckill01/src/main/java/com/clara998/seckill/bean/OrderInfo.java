@@ -3,6 +3,7 @@ package com.clara998.seckill.bean;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -12,7 +13,7 @@ import java.util.Date;
  */
 @Setter
 @Getter
-public class OrderInfo {
+public class OrderInfo implements Serializable {
     private Long id;
     private Long userId;
     private Long goodsId;

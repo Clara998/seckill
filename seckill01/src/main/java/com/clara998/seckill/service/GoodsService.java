@@ -3,7 +3,6 @@ package com.clara998.seckill.service;
 import com.clara998.seckill.bean.SeckillGoods;
 import com.clara998.seckill.mapper.GoodsMapper;
 import com.clara998.seckill.vo.GoodsVo;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,10 +31,13 @@ public class GoodsService {
 
     /**
      * 库存每次减少1
+     * @return
      */
-    public void reduceStock(GoodsVo goods) {
+    public boolean reduceStock(GoodsVo goods) {
         SeckillGoods sg = new SeckillGoods();
         sg.setGoodsId(goods.getId());
-        goodsMapper.reduceStock(sg);
+        //这里假如满足库存>0才update成功，否则update失败
+        int ret = goodsMapper.reduceStock(sg);
+        return ret > 0;
     }
 }

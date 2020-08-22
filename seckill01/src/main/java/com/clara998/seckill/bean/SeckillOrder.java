@@ -3,6 +3,8 @@ package com.clara998.seckill.bean;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 /**
  * @author clara
  * @date 2020/8/13
@@ -12,9 +14,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SeckillOrder {
+public class SeckillOrder implements Serializable {
     private Long id;
     private Long userId;
     private Long  orderId;
     private Long goodsId;
+
 }
