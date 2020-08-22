@@ -93,8 +93,12 @@ public class SeckillController implements InitializingBean {
         //预减库存
         long stock = stringRedisTemplate.boundValueOps("getGoodsStock" + goodsId).increment(-1);
         if (stock < 0) {
-            localOverMap.put(goodsId, true);
-            return Result.error(CodeMsg.SECKILL_OVER);
+            afterPropertiesSet();
+            long stock2 = stringRedisTemplate.boundValueOps("getGoodsStock" + goodsId).increment(-1);
+            if(stock2 < 0){
+                localOverMap.put(goodsId, true);
+                return Result.error(CodeMsg.SECKILL_OVER);
+            }
         }
 
         //通过用户id和商品id来判断该用户是否已经秒杀到该商品，防止重复秒杀
@@ -116,7 +120,7 @@ public class SeckillController implements InitializingBean {
      * @throws Exception
      */
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         List<GoodsVo> goodsVoList = goodsService.goodsVoList();
         if (goodsVoList == null) {
             return;
