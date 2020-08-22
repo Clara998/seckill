@@ -10,6 +10,7 @@ import com.clara998.seckill.service.GoodsService;
 import com.clara998.seckill.service.OrderService;
 import com.clara998.seckill.service.SeckillService;
 import com.clara998.seckill.vo.GoodsVo;
+import com.google.common.util.concurrent.RateLimiter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author clara
@@ -31,7 +33,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/seckill")
-public class SeckillController  implements InitializingBean {
+public class SeckillController implements InitializingBean {
 
     @Autowired
     GoodsService goodsService;
@@ -51,6 +53,9 @@ public class SeckillController  implements InitializingBean {
     @Autowired
     MQSender mqSender;
 
+    //基于令牌桶算法的限流实现类
+    RateLimiter rateLimiter = RateLimiter.create(10);
+
     //做标记，判断该商品是否没有库存(通过内存哈希，减少redis的压力
     private HashMap<Long, Boolean> localOverMap = new HashMap<Long, Boolean>();
 
@@ -67,7 +72,10 @@ public class SeckillController  implements InitializingBean {
     @ResponseBody
     //疑惑这个goodId哪里来的: html页面input进来
     public Result<Integer> list(Model model, User user, @RequestParam("goodsId")long goodsId) {
-        model.addAttribute("user", user);
+        //不阻塞
+        if (!rateLimiter.tryAcquire(1000, TimeUnit.MILLISECONDS)) {
+            return  Result.error(CodeMsg.ACCESS_LIMIT_REACHED);
+        }
         //返回login.html
         if (user == null) {
             return Result.error(CodeMsg.SESSION_ERROR);
