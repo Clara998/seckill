@@ -19,4 +19,5 @@ public class SeckillGoods implements Serializable {
     private Integer stockCount;
     private Date startDate;
     private Date endDate;
+    private int version;
 }
