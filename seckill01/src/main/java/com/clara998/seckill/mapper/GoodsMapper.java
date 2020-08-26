@@ -23,7 +23,7 @@ public interface GoodsMapper {
     /**
      * https://juejin.im/post/6844903894997270536 看不懂的Param
      */
-    @Select("select g.*, sg.stock_count, sg.start_date, sg.end_date, sg.seckill_price, , sg.version   from sk_goods_seckill sg left join sk_goods g  on sg.goods_id = g.id where g.id = #{goodsId}")
+    @Select("select g.*, sg.stock_count, sg.start_date, sg.end_date, sg.seckill_price, sg.version  from sk_goods_seckill sg left join sk_goods g  on sg.goods_id = g.id where g.id = #{goodsId}")
     public GoodsVo getGoodsVoByGoodsId(@Param("goodsId")long goodsId);
 
     /**
